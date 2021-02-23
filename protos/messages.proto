@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service VideoProcessor {
+  rpc GetVideoAnalysis (stream ImageRequest) returns (stream ImageResponse) {}
+}
+
+message ImageRequest {
+  bytes img = 1;
+}
+
+message ImageResponse {
+  int32 reply = 1;
+}
