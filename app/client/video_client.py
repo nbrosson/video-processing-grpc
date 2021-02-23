@@ -3,15 +3,15 @@ from __future__ import print_function
 import grpc
 import cv2
 from app.messages import messages_pb2, messages_pb2_grpc
-from app import MAX_MESSAGE_LENGTH
+from app import CONFIG
 
 
 def run():
     channel = grpc.insecure_channel(
-        'localhost:9000',
+        f'localhost:{CONFIG["application"]["SERVER_PORT"]}',
         options=[
-            ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
-            ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
+            ('grpc.max_send_message_length', int(CONFIG["application"]["MAX_MESSAGE_LENGTH"])),
+            ('grpc.max_receive_message_length', int(CONFIG["application"]["MAX_MESSAGE_LENGTH"])),
         ]
     )
     stub = messages_pb2_grpc.VideoProcessorStub(channel)
@@ -21,7 +21,7 @@ def run():
 
 def generate_requests():
 
-    cap = cv2.VideoCapture('./samples/test-video.mp4')
+    cap = cv2.VideoCapture(CONFIG["application"]["VIDEO_URL"])
     while cap.isOpened:
         ret, frame = cap.read()
         frame = cv2.imencode('.jpg', frame)[1].tobytes()

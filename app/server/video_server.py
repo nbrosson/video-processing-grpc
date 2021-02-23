@@ -6,7 +6,7 @@ import grpc
 import numpy as np
 from app.messages import messages_pb2_grpc, messages_pb2
 from app.server.processing import process_frame
-from app import MAX_MESSAGE_LENGTH
+from app import CONFIG
 
 
 _ONE_DAY_IN_SECONDS = 0
@@ -15,9 +15,7 @@ _ONE_DAY_IN_SECONDS = 0
 class VideoProcessor(messages_pb2_grpc.VideoProcessorServicer):
 
     def GetVideoAnalysis(self, request_iterator, context):
-
-        ttt = 0
-        print("SERVER: message received")
+        print("Server started")
         for req in request_iterator:
 
             nparr = np.fromstring(req.img, np.uint8)
@@ -30,15 +28,15 @@ class VideoProcessor(messages_pb2_grpc.VideoProcessorServicer):
 
 def serve():
     server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=5),
+        futures.ThreadPoolExecutor(max_workers=int(CONFIG["application"]["NB_WORKERS"])),
         options=[
-            ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
-            ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
+            ('grpc.max_send_message_length', int(CONFIG["application"]["MAX_MESSAGE_LENGTH"])),
+            ('grpc.max_receive_message_length', int(CONFIG["application"]["MAX_MESSAGE_LENGTH"])),
         ]
     )
     messages_pb2_grpc.add_VideoProcessorServicer_to_server(VideoProcessor(), server)
-    server.add_insecure_port('[::]:9000')
-    print("Listening at localhost:9000")
+    server.add_insecure_port(f'[::]:{CONFIG["application"]["SERVER_PORT"]}')
+    print(f'Listening at localhost:{CONFIG["application"]["SERVER_PORT"]}')
     server.start()
     try:
         while True:

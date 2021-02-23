@@ -1,1 +1,5 @@
-MAX_MESSAGE_LENGTH = 9220805
+import configparser
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read("config/config.ini")
